@@ -1,0 +1,77 @@
+from copy import deepcopy
+import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
+plt.rcParams['figure.figsize'] = (16, 9)
+plt.style.use('ggplot')
+
+def init():
+    global data, k, X, C, clusters, centroid
+    return
+
+def gen_data(m):
+    data = np.random.randn(m,2) + 5
+    data = pd.DataFrame(data)
+    data.columns = ['V1','V2']
+    return data
+
+def dist(a, b, ax=1):
+    return np.linalg.norm(a - b, axis=ax)
+
+
+if __name__ == "__main__":
+    init()
+    data = gen_data(10000)
+    k = 3
+    tol = 10**(-5)
+    a = data['V1'].values
+    b = data['V2'].values
+    X = np.array(list(zip(a, b)))
+    plt.scatter(a,b, c='black', s=7)
+    C_x = np.random.randint(0, np.max(X), size=k)
+    C_y = np.random.randint(0, np.max(X), size=k)
+    C = np.array(list(zip(C_x, C_y)), dtype=np.float32)
+    plt.scatter(a, b, c='#050505', s=7)
+    plt.scatter(C_x, C_y, marker='*', s=200, c='g')
+    C_old = np.zeros(C.shape)
+    clusters = np.zeros(len(X))
+    error = dist(C, C_old, None)
+    iteration = 0
+    knn = {}
+    #initial
+    knn['loop 0']={}
+    knn['loop 0']['iteration']=iteration
+    knn['loop 0']['clusters']=deepcopy(clusters)
+    knn['loop 0']['centroid']=deepcopy(C)
+    numpyarray = np.empty((1000,1000))
+    max_iter = 1000
+    iterations = []
+    clusters_history = []
+    centroid_history = []
+    for iteration in range(max_iter):
+        if error > tol :
+            iteration += 1
+            for i in range(len(X)):
+                distances = dist(X[i], C)
+                cluster = np.argmin(distances)
+                clusters[i] = cluster
+            C_old = deepcopy(C)
+            for i in range(k):
+                points = [X[j] for j in range(len(X)) if clusters[j] == i]
+                C[i] = np.mean(points, axis=0)
+            knn["loop {0}".format(iteration)]={}
+            knn["loop {0}".format(iteration)]['iteration'] = iteration
+            knn["loop {0}".format(iteration)]['clusters']= deepcopy(clusters)
+            knn["loop {0}".format(iteration)]['centroid'] = deepcopy(C)
+        else :
+            break
+        error = dist(C, C_old, None)     
+    colors = ['r', 'g', 'b', 'y', 'c', 'm']
+    fig, ax = plt.subplots()
+    for i in range(k):
+            points = np.array([X[j] for j in range(len(X)) if clusters[j] == i])
+            ax.scatter(points[:, 0], points[:, 1], s=7, c=colors[i])
+    ax.scatter(C[:, 0], C[:, 1], marker='*', s=200, c='#050505')
+             
+    
+    pass
