@@ -30,11 +30,7 @@ def kmeans(X,k):
     knn['loop 0']['iteration']=iteration
     knn['loop 0']['clusters']=deepcopy(clusters)
     knn['loop 0']['centroid']=deepcopy(C)
-    numpyarray = np.empty((1000,1000))
     max_iter = 1000
-    iterations = []
-    clusters_history = []
-    centroid_history = []
     for iteration in range(max_iter):
         if error > tol :
             iteration += 1
@@ -49,11 +45,11 @@ def kmeans(X,k):
             knn["loop {0}".format(iteration)]={}
             knn["loop {0}".format(iteration)]['iteration'] = iteration
             knn["loop {0}".format(iteration)]['clusters']= deepcopy(clusters)
-            knn["loop {0}".format(iteration)]['centroid'] = deepcopy(C)
+            knn["loop {0}".format(iteration)]['centroid'] = deepcopy(points)
         else :
             break
         error = dist(C, C_old, None)
-    return knn, C, clusters, points
+    return knn, C, clusters
 
 if __name__ == "__main__":
     init()
@@ -74,8 +70,9 @@ if __name__ == "__main__":
     plt.scatter(C_x, C_y, marker='*', s=200, c='g')
     
     #kmeans function
-    knn_histroy, C, clusters, points =kmeans(X,k)
-
+    knn_histroy, C, clusters =kmeans(X,k)
+    
+    print('points :', C)
     #plot final cluster
     colors = ['r', 'g', 'b', 'y', 'c', 'm']
     fig, ax = plt.subplots()
